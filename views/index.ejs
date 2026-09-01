@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <title>Tasklist</title>
+</head>
+<body>
+  <h1>Tasklist</h1>
+
+  <% if (tasks.length === 0) { %>
+    <p>Keine Aufgaben vorhanden.</p>
+  <% } else { %>
+    <table>
+      <thead>
+        <tr>
+          <th>Titel</th>
+          <th>Beschreibung</th>
+          <th>Fälligkeitsdatum</th>
+          <th>Status</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% tasks.forEach((task) => { %>
+          <tr>
+            <td><%= task.title %></td>
+            <td><%= task.description %></td>
+            <td><%= task.dueDate %></td>
+            <td><%= task.done ? 'Erledigt' : 'Offen' %></td>
+          </tr>
+        <% }) %>
+      </tbody>
+    </table>
+  <% } %>
+</body>
+</html>
