@@ -46,6 +46,26 @@ app.post('/aufgaben', (req, res) => {
   res.redirect('/');
 });
 
+app.post('/aufgaben/:id/erledigen', (req, res) => {
+  const task = tasks.find((task) => task.id === Number(req.params.id));
+
+  if (task) {
+    task.done = true;
+  }
+
+  res.redirect('/');
+});
+
+app.post('/aufgaben/:id/loeschen', (req, res) => {
+  const index = tasks.findIndex((task) => task.id === Number(req.params.id));
+
+  if (index !== -1) {
+    tasks.splice(index, 1);
+  }
+
+  res.redirect('/');
+});
+
 const port = process.env.PORT || 3000;
 
 app.listen(port, () => {

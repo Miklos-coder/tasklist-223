@@ -18,15 +18,24 @@
           <th>Beschreibung</th>
           <th>Fälligkeitsdatum</th>
           <th>Status</th>
+          <th>Aktionen</th>
         </tr>
       </thead>
       <tbody>
         <% tasks.forEach((task) => { %>
-          <tr>
+          <tr<% if (task.done) { %> style="text-decoration: line-through;"<% } %>>
             <td><%= task.title %></td>
             <td><%= task.description %></td>
             <td><%= task.dueDate %></td>
             <td><%= task.done ? 'Erledigt' : 'Offen' %></td>
+            <td>
+              <form action="/aufgaben/<%= task.id %>/erledigen" method="post">
+                <button type="submit">Als erledigt markieren</button>
+              </form>
+              <form action="/aufgaben/<%= task.id %>/loeschen" method="post">
+                <button type="submit">Löschen</button>
+              </form>
+            </td>
           </tr>
         <% }) %>
       </tbody>
