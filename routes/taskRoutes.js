@@ -1,12 +1,12 @@
 const express = require('express');
-const taskController = require('../controllers/taskController');
-
+const controller = require('../controllers/taskController');
 const router = express.Router();
-
-router.get('/', taskController.showTasks);
-router.get('/aufgaben/neu', taskController.showNewTaskForm);
-router.post('/aufgaben', taskController.createTask);
-router.post('/aufgaben/:id/erledigen', taskController.completeTask);
-router.post('/aufgaben/:id/löschen', taskController.deleteTask);
-
+router.get('/', controller.showTasks);
+router.get('/aufgaben/neu', controller.showNewTaskForm);
+router.post('/aufgaben', controller.createTask);
+router.post('/aufgaben/:id/erledigen', controller.completeTask);
+router.post('/aufgaben/:id/loeschen', controller.deleteTask);
+// Bestehende v1-Formulare mit Umlaut bleiben nutzbar.
+router.post('/aufgaben/:id/l%C3%B6schen', controller.deleteTask);
+router.post('/aufgaben/:id/zuweisen', controller.assignTask);
 module.exports = router;

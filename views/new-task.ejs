@@ -9,15 +9,16 @@
 
   <form action="/aufgaben" method="post">
     <label for="title">Titel</label>
-    <input id="title" name="title" required>
+    <input id="title" name="title" maxlength="191" required>
 
     <label for="description">Beschreibung</label>
-    <textarea id="description" name="description" required></textarea>
+    <textarea id="description" name="description" maxlength="10000" required></textarea>
 
     <label for="dueDate">Fälligkeitsdatum</label>
     <input id="dueDate" name="dueDate" type="date" required>
 
     <button type="submit">Aufgabe speichern</button>
   </form>
+  <p><a href="/">Zur Aufgabenliste</a></p>
 </body>
 </html>
