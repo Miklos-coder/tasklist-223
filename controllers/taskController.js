@@ -29,17 +29,18 @@ function showNewTaskForm(req, res) {
   res.render('new-task');
 }
 
-function createTask(req, res) {
-  const id = tasks.length === 0 ? 1 : Math.max(...tasks.map((task) => task.id)) + 1;
-
-  tasks.push({
-    id,
-    title: req.body.title,
-    description: req.body.description,
-    dueDate: req.body.dueDate,
-    done: false
-  });
-
+async function createTask(req, res) {
+  const { title, description, dueDate } = req.body;
+  const date = new Date(dueDate + 'T00:00:00.000Z');
+  if (typeof title !== 'string' || !title.trim() || title.trim().length > 191 ||
+      typeof description !== 'string' || !description.trim() ||
+      typeof dueDate !== 'string' || !/^\d{4}-\d{2}-\d{2}$/.test(dueDate) ||
+      Number.isNaN(date.getTime()) || date.toISOString().slice(0, 10) !== dueDate) {
+    const error = new Error('Bitte gib einen Titel, eine Beschreibung und ein g?ltiges F?lligkeitsdatum ein.');
+    error.status = 400;
+    throw error;
+  }
+  await prisma.task.create({ data: { title: title.trim(), description: description.trim(), dueDate: date } });
   res.redirect('/');
 }
 
