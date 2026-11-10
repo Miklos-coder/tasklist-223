@@ -1,3 +1,4 @@
+const prisma = require('../lib/prisma');
 const tasks = [
   {
     id: 1,
@@ -15,8 +16,13 @@ const tasks = [
   }
 ];
 
-function showTasks(req, res) {
-  res.render('index', { tasks });
+async function showTasks(req, res) {
+  const storedTasks = await prisma.task.findMany({
+    orderBy: [{ done: 'asc' }, { dueDate: 'asc' }, { id: 'asc' }]
+  });
+  res.render('index', { tasks: storedTasks.map((task) => ({
+    ...task, dueDate: task.dueDate.toISOString().slice(0, 10)
+  })) });
 }
 
 function showNewTaskForm(req, res) {
