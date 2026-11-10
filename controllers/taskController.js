@@ -1,21 +1,4 @@
 const prisma = require('../lib/prisma');
-const tasks = [
-  {
-    id: 1,
-    title: 'Einkaufen',
-    description: 'Lebensmittel einkaufen',
-    dueDate: '2026-09-05',
-    done: false
-  },
-  {
-    id: 2,
-    title: 'Hausaufgaben',
-    description: 'Aufgabe fertigstellen',
-    dueDate: '2026-09-10',
-    done: true
-  }
-];
-
 async function showTasks(req, res) {
   const storedTasks = await prisma.task.findMany({
     orderBy: [{ done: 'asc' }, { dueDate: 'asc' }, { id: 'asc' }]
@@ -44,24 +27,24 @@ async function createTask(req, res) {
   res.redirect('/');
 }
 
-function completeTask(req, res) {
-  const task = tasks.find((task) => task.id === Number(req.params.id));
-
-  if (task) {
-    task.done = true;
-  }
-
+async function completeTask(req, res) {
+  await prisma.task.update({ where: { id: taskId(req.params.id) }, data: { done: true } });
   res.redirect('/');
 }
 
-function deleteTask(req, res) {
-  const index = tasks.findIndex((task) => task.id === Number(req.params.id));
-
-  if (index !== -1) {
-    tasks.splice(index, 1);
-  }
-
+async function deleteTask(req, res) {
+  await prisma.task.delete({ where: { id: taskId(req.params.id) } });
   res.redirect('/');
+}
+
+function taskId(value) {
+  const id = Number(value);
+  if (!/^\d+$/.test(value) || !Number.isSafeInteger(id) || id < 1) {
+    const error = new Error('Ung?ltige Aufgaben-ID.');
+    error.status = 400;
+    throw error;
+  }
+  return id;
 }
 
 module.exports = {
