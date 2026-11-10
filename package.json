@@ -20,7 +20,12 @@
   },
   "homepage": "https://github.com/Miklos-coder/tasklist-223#readme",
   "dependencies": {
+    "@prisma/client": "^6.19.0",
+    "dotenv": "^18.0.10",
     "ejs": "^6.0.1",
     "express": "^5.2.1"
+  },
+  "devDependencies": {
+    "prisma": "^6.19.0"
   }
 }
