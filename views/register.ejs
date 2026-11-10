@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html lang="de">
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Registrieren</title></head>
+<body>
+  <h1>Benutzer registrieren</h1>
+  <p>Nach der Registrierung erhältst du die Aufgabe „Profilbild hochladen“, fällig innerhalb von zwei Tagen.</p>
+  <% if (error) { %><p role="alert"><%= error %></p><% } %>
+  <form action="/registrieren" method="post">
+    <p><label for="email">E-Mail-Adresse</label><br><input id="email" name="email" type="email" maxlength="191" autocomplete="email" value="<%= email %>" required></p>
+    <p><label for="password">Passwort (12–256 Zeichen)</label><br><input id="password" name="password" type="password" minlength="12" maxlength="256" autocomplete="new-password" required></p>
+    <button type="submit">Registrieren</button>
+  </form>
+  <p><a href="/">Zur Aufgabenliste</a></p>
+</body>
+</html>

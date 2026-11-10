@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="de">
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Benutzerübersicht</title></head>
+<body>
+  <h1>Benutzerübersicht</h1>
+  <p><a href="/">Zur Aufgabenliste</a> | <a href="/registrieren">Benutzer registrieren</a></p>
+  <% if (users.length === 0) { %><p>Keine Benutzer vorhanden.</p><% } else { %>
+    <table>
+      <thead><tr><th>E-Mail</th><th>Profilbild</th><th>Rolle</th></tr></thead>
+      <tbody>
+        <% users.forEach((user) => { %>
+          <tr><td><%= user.email %></td><td><%= user.profileImage || 'Kein Profilbild hinterlegt' %></td>
+            <td><form action="/benutzer/<%= user.id %>/rolle" method="post">
+              <label for="role-<%= user.id %>">Rolle für <%= user.email %></label>
+              <select id="role-<%= user.id %>" name="role">
+                <option value="user"<% if (user.role === 'user') { %> selected<% } %>>user</option>
+                <option value="admin"<% if (user.role === 'admin') { %> selected<% } %>>admin</option>
+              </select>
+              <button type="submit">Rolle speichern</button>
+            </form></td>
+          </tr>
+        <% }) %>
+      </tbody>
+    </table>
+  <% } %>
+</body>
+</html>
