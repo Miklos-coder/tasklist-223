@@ -7,10 +7,32 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+enum Role {
+  admin
+  user
+}
+
+model User {
+  id            Int     @id @default(autoincrement())
+  email         String  @unique @db.VarChar(191)
+  password      String  @db.VarChar(255)
+  profileImage  String? @db.VarChar(2048)
+  role          Role    @default(user)
+  createdTasks  Task[]  @relation("TaskCreator")
+  assignedTasks Task[]  @relation("TaskAssignee")
+}
+
 model Task {
   id          Int      @id @default(autoincrement())
   title       String   @db.VarChar(191)
   description String   @db.Text
   dueDate     DateTime @db.Date
   done        Boolean  @default(false)
+  creatorId   Int
+  assigneeId  Int?
+  creator     User     @relation("TaskCreator", fields: [creatorId], references: [id], onDelete: Restrict)
+  assignee    User?    @relation("TaskAssignee", fields: [assigneeId], references: [id], onDelete: SetNull)
+
+  @@index([creatorId])
+  @@index([assigneeId])
 }
