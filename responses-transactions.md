@@ -1,24 +1,34 @@
 # Prisma-Beziehungen und Transaktionen
 
-## 1. Relationsfeld und Fremdschlüssel sind verschieden
+Für unsere Tasklist habe ich mich mit den Beziehungen in Prisma beschäftigt. Dabei habe ich drei Konzepte kennengelernt, die für die Verbindung zwischen Benutzern und Aufgaben wichtig sind.
 
-Bei einer Aufgabe ist `creatorId` die tatsächlich gespeicherte Zahl in der Datenbank. Das Relationsfeld `creator` ermöglicht dagegen den Zugriff auf das passende Benutzerobjekt über Prisma. Auf der Gegenseite liefert `createdTasks` die Aufgaben des Benutzers. Diese Liste ist keine zusätzliche Datenbankspalte: Die Zuordnung ergibt sich aus den Fremdschlüsseln der Aufgaben.
+**Relationsfeld und Fremdschlüssel**
 
-## 2. Zwei Beziehungen zwischen denselben Modellen brauchen Namen
+Bei einer Beziehung in Prisma gibt es einen Unterschied zwischen dem **Relationsfeld** und dem **Fremdschlüssel**. Der Fremdschlüssel speichert die ID des verbundenen Datensatzes in der Datenbank. Das Relationsfeld wird hingegen verwendet, um über Prisma auf den verbundenen Datensatz zuzugreifen.
 
-Eine Aufgabe hat einen Ersteller und kann einem anderen Benutzer zugewiesen sein. Beide Beziehungen verbinden `Task` mit `User`. Deshalb heissen sie im Schema ausdrücklich `TaskCreator` und `TaskAssignee`. Derselbe Beziehungsname steht jeweils auf beiden Seiten. So erkennt Prisma, dass `createdTasks` zum Ersteller gehört und `assignedTasks` zur Zuweisung.
+In unserer Tasklist speichert zum Beispiel `creatorId` die ID des Benutzers, der eine Aufgabe erstellt hat. Über das Relationsfeld `creator` können wir auf den dazugehörigen Benutzer zugreifen. Beim Benutzer gibt es zusätzlich `createdTasks`. Darüber können wir seine erstellten Aufgaben abrufen. Diese Liste wird nicht als eigene Spalte in der Datenbank gespeichert, sondern ergibt sich aus den Fremdschlüsseln der Aufgaben.
 
-## 3. Optionale Beziehungen bestimmen auch das Löschverhalten
+**Mehrere Beziehungen zwischen denselben Modellen**
 
-`assigneeId Int?` und `assignee User?` erlauben Aufgaben ohne Zuweisung. `null` bedeutet dabei «niemandem zugewiesen». Mit `onDelete: SetNull` würde beim Löschen eines zugewiesenen Benutzers die Aufgabe erhalten bleiben und ihre Zuweisung verlieren. Der Ersteller ist dagegen verpflichtend. `onDelete: Restrict` verhindert das Löschen eines Benutzers, solange Aufgaben auf ihn als Ersteller verweisen.
+In unserer Anwendung gibt es zwei Beziehungen zwischen einer Aufgabe und einem Benutzer. Eine Aufgabe hat einen **Ersteller** und kann zusätzlich einem Benutzer **zugewiesen** werden. Der Ersteller und der zugewiesene Benutzer müssen dabei nicht dieselbe Person sein.
 
-## Anwendung einer Transaktion bei der Registrierung
+Damit Prisma diese beiden Beziehungen unterscheiden kann, haben wir ihnen Namen gegeben. Die Beziehung für den Ersteller heisst `TaskCreator` und die Beziehung für die Zuweisung `TaskAssignee`. Auf beiden Seiten der jeweiligen Beziehung wird derselbe Name verwendet. Dadurch erkennt Prisma, welche Felder zusammengehören.
 
-Benutzer und Profilbild-Aufgabe gehören zu einem gemeinsamen Vorgang. In `registerUser` laufen beide Inserts über denselben Transaktionsclient `tx`. Erst wenn beide gelingen, wird gespeichert. Schlägt das Anlegen der Aufgabe fehl, wird auch der vorher angelegte Benutzer zurückgerollt. Eine doppelte E-Mail-Adresse verhindert bereits das Anlegen des Benutzers und damit auch seiner Aufgabe.
+**Optionale Beziehungen und Löschverhalten**
 
-Der Integrationstest erzwingt einen Datenbankfehler beim Aufgaben-Insert und kontrolliert anschliessend, dass weder ein neuer Benutzer noch eine zusätzliche Aufgabe übrigbleibt.
+Eine Beziehung kann auch optional sein. In unserer Tasklist muss eine Aufgabe nicht zwingend einem Benutzer zugewiesen sein. Deshalb sind `assigneeId` und `assignee` im Prisma-Schema optional. Wenn die Zuweisung leer ist, wird dafür `null` gespeichert.
 
-## Quellen
+Zusätzlich haben wir festgelegt, was beim Löschen eines Benutzers passieren soll. Bei einer Zuweisung sorgt `onDelete: SetNull` dafür, dass die Aufgabe erhalten bleibt und nur die Zuweisung entfernt wird. Der Ersteller einer Aufgabe ist hingegen verpflichtend. Mit `onDelete: Restrict` wird verhindert, dass ein Benutzer gelöscht wird, solange er als Ersteller einer Aufgabe eingetragen ist.
+
+**Transaktion bei der Registrierung**
+
+Bei der Registrierung sollen der neue Benutzer und die Aufgabe **«Profilbild hochladen»** zusammen gespeichert werden. Dafür verwenden wir eine Transaktion. Beide Datenbankoperationen werden über denselben Transaktionsclient `tx` ausgeführt.
+
+Dadurch werden die Änderungen nur übernommen, wenn beide Vorgänge erfolgreich sind. Falls das Erstellen der Aufgabe fehlschlägt, wird auch das Erstellen des Benutzers zurückgerollt. Bei einer bereits verwendeten E-Mail-Adresse wird ebenfalls keine neue Aufgabe angelegt.
+
+Wir haben diesen Fall mit einem Integrationstest geprüft. Dabei wird absichtlich ein Fehler beim Speichern der Aufgabe ausgelöst. Anschliessend wird kontrolliert, dass weder ein neuer Benutzer noch eine zusätzliche Aufgabe gespeichert wurde.
+
+**Quellen**
 
 - [Prisma: Relations](https://www.prisma.io/docs/orm/v6/prisma-schema/data-model/relations)
 - [Prisma: Transactions](https://www.prisma.io/docs/orm/v6/prisma-client/queries/transactions)
